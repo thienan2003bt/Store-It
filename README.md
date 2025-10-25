@@ -1,3 +1,4 @@
+ALWAYS USE SHADCN 2.1.3 FOR ADDING NEW COMPONENT, likely: npx shadcn@2.1.3 add input-otp
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

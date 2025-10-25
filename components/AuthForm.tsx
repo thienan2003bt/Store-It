@@ -10,6 +10,7 @@ import Link from "next/link";
 import {useState} from "react";
 import {useForm} from "react-hook-form";
 import {z} from "zod";
+import OTPModal from "./OTPModal";
 
 export type FormType = "sign-in" | "sign-up";
 
@@ -112,12 +113,7 @@ const AuthForm = ({type}: {type: FormType}) => {
           </div>
         </form>
       </Form>
-      {accountId && (
-        <div>
-          <h1>OTP Modal</h1>
-        </div>
-        // <OtpModal email={form.getValues("email")} accountId={accountId} />
-      )}
+      {accountId && <OTPModal email={form.getValues("email")} accountId={accountId} />}
     </>
   );
 };

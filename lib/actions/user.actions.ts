@@ -5,6 +5,7 @@ import {ID, Models, Query} from "appwrite";
 import {createAdminClient} from "../appwrite";
 import {AppwriteConfig} from "../appwrite/config";
 import {parseStringify} from "../utils";
+import {cookies} from "next/headers";
 
 const getUserByEmail = async (email: string) => {
   const {tables} = await createAdminClient();
@@ -21,7 +22,7 @@ const handleError = (error: unknown, message: string) => {
   throw error;
 };
 
-const sendEmailOTP = async ({email}: {email: string}) => {
+export const sendEmailOTP = async ({email}: {email: string}): Promise<string | null> => {
   const {account} = await createAdminClient();
   try {
     const session = await account.createEmailToken(ID.unique(), email);
@@ -29,6 +30,7 @@ const sendEmailOTP = async ({email}: {email: string}) => {
   } catch (error) {
     handleError(error, "Failed to send email OTP");
   }
+  return null;
 };
 
 export const createAccount = async ({fullName, email}: {fullName: string; email: string}) => {
@@ -38,6 +40,7 @@ export const createAccount = async ({fullName, email}: {fullName: string; email:
     throw new Error("Failed to send an OTP for creating new account");
   }
 
+  console.log("Existing user:", existingUser);
   if (!existingUser) {
     const {tables} = await createAdminClient();
     await tables.createRow({
@@ -55,4 +58,22 @@ export const createAccount = async ({fullName, email}: {fullName: string; email:
     return parseStringify<{accountId: string}>({accountId});
   }
   return null;
+};
+
+export const verifyOTP = async ({accountId, otp}: {accountId: string; otp: string}) => {
+  try {
+    const {account} = await createAdminClient();
+    const session = await account.createSession(accountId, otp);
+
+    (await cookies()).set("appwrite-session", session.secret!, {
+      httpOnly: true,
+      path: "/",
+      sameSite: "strict",
+      secure: true,
+    });
+
+    return parseStringify<{sessionId: string}>({sessionId: session.$id});
+  } catch (error) {
+    handleError(error, "Failed to verify OTP");
+  }
 };
